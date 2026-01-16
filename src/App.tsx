@@ -170,6 +170,7 @@ export default function App() {
                 total={totalCoupons}
                 canClear={isFinished && results.length > 0}
                 onClear={() => setResults([])}
+                canOpenCouponManager={results.length === 0}
                 onOpenCouponManager={() => setCouponManager(!couponManager)}
                 loadingCoupons={loadingCoupons}
               />

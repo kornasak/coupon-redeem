@@ -12,6 +12,7 @@ type Props = {
   total: number;
   canClear: boolean;
   onClear: () => void;
+  canOpenCouponManager: boolean;
   onOpenCouponManager: () => void;
   loadingCoupons: boolean;
 };
@@ -21,6 +22,7 @@ export function ResultList({
   total,
   canClear,
   onClear,
+  canOpenCouponManager,
   onOpenCouponManager,
   loadingCoupons,
 }: Props) {
@@ -104,9 +106,9 @@ export function ResultList({
 
           <button
             onClick={onOpenCouponManager}
-            disabled={loadingCoupons}
+            disabled={loadingCoupons || !canOpenCouponManager}
             className={`flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-xs font-medium transition ${
-              !loadingCoupons
+              !loadingCoupons && canOpenCouponManager
                 ? "text-slate-300 hover:bg-white/10"
                 : "cursor-not-allowed text-slate-500"
             } md:h-auto md:w-auto md:px-3 md:py-1.5`}
