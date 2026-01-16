@@ -1,5 +1,18 @@
 import type { CouponItem } from "@/types/coupon.type";
 
+export async function validateCoupon(params: {
+  couponCode: string;
+  pid: string;
+}) {
+  const url = new URL("/api/netmarble/validate", window.location.origin);
+
+  url.searchParams.set("couponCode", params.couponCode);
+  url.searchParams.set("pid", params.pid);
+
+  const res = await fetch(url.toString());
+  return res.json();
+}
+
 export async function redeemCoupon(params: {
   couponCode: string;
   pid: string;

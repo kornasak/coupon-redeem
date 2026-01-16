@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PiXBold } from "react-icons/pi";
 import { toast, ToastContainer } from "react-toastify";
-import { fetchCoupons, redeemCoupon } from "@api/coupon";
+import { fetchCoupons, redeemCoupon, validateCoupon } from "@api/coupon";
 import { delay } from "@utils/delay";
 
 import { CouponManagerModal } from "@/components/CouponManagerModal";
@@ -69,6 +69,13 @@ export default function App() {
   const totalCoupons = validCoupons.length;
 
   const handleRedeemAll = async () => {
+    if (pid.length !== 32) {
+      toast.warn("UID (PID) ไม่ถูกต้อง", {
+        autoClose: 2500,
+      });
+      return;
+    }
+
     setLoading(true);
     setPaused(false);
     pausedRef.current = false;
@@ -82,6 +89,25 @@ export default function App() {
     for (let i = 0; i < total; i++) {
       const code = validCoupons[i].itemCode;
       const reward = validCoupons[i].reward;
+
+      const check = await validateCoupon({
+        couponCode: code,
+        pid,
+      });
+
+      if (!check.success) {
+        temp.push({
+          code,
+          reward,
+          success: false,
+          message: translateCouponError(check),
+        });
+        setResults([...temp]);
+        setProgress(Math.round(((i + 1) / total) * 100));
+
+        setLoading(false);
+        return;
+      }
 
       while (pausedRef.current) await delay(300);
 
