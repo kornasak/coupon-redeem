@@ -12,6 +12,7 @@ type Props = {
   loading: boolean;
   paused: boolean;
   progress: number;
+  disabledStart?: boolean;
   onPidChange: (v: string) => void;
   onStart: () => void;
   onPause: () => void;
@@ -23,6 +24,7 @@ export function CouponPanel({
   loading,
   paused,
   progress,
+  disabledStart,
   onPidChange,
   onStart,
   onPause,
@@ -87,7 +89,7 @@ export function CouponPanel({
         <ActionButton
           loading={loading}
           paused={paused}
-          disabled={!pid}
+          disabled={!pid || disabledStart}
           onStart={onStart}
           onPause={onPause}
           onResume={onResume}

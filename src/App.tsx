@@ -15,8 +15,14 @@ import { isSameDay } from "@/utils/isSameDay";
 
 import "react-toastify/dist/ReactToastify.css";
 
+const BLOCKED_PIDS_KEY = "blocked_pids";
+
 export default function App() {
   const [pid, setPid] = useState("");
+  const [blockedPids, setBlockedPids] = useState<string[]>(() => {
+    const stored = localStorage.getItem(BLOCKED_PIDS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  });
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -25,6 +31,11 @@ export default function App() {
   const [excludedCodes, setExcludedCodes] = useState<string[]>([]);
   const [couponManager, setCouponManager] = useState(false);
   const [loadingCoupons, setLoadingCoupons] = useState(true);
+
+  const saveBlockedPids = (list: string[]) => {
+    setBlockedPids(list);
+    localStorage.setItem(BLOCKED_PIDS_KEY, JSON.stringify(list));
+  };
 
   useEffect(() => {
     fetchCoupons()
@@ -105,6 +116,18 @@ export default function App() {
         setResults([...temp]);
         setProgress(Math.round(((i + 1) / total) * 100));
 
+        if (check.errorCode === 24002) {
+          const newList = blockedPids.includes(pid)
+            ? blockedPids
+            : [...blockedPids, pid];
+
+          saveBlockedPids(newList);
+
+          toast.error("UID นี้ถูกจำกัดชั่วคราว กรุณาเปลี่ยน UID ใหม่", {
+            autoClose: 2500,
+          });
+        }
+
         setLoading(false);
         return;
       }
@@ -159,6 +182,14 @@ export default function App() {
     setPatchSeen(true);
   };
 
+  const isPidBlocked = blockedPids.includes(pid);
+
+  useEffect(() => {
+    if (blockedPids.includes(pid) === false) {
+      return;
+    }
+  }, [pid, blockedPids]);
+
   return (
     <div className="relative h-screen overflow-hidden text-white">
       <div className="absolute inset-0 scale-100 bg-black bg-cover" />
@@ -180,6 +211,7 @@ export default function App() {
                 loading={loading}
                 paused={paused}
                 progress={progress}
+                disabledStart={isPidBlocked}
                 onPidChange={setPid}
                 onStart={handleRedeemAll}
                 onPause={() => {
